@@ -14,27 +14,27 @@ class Expenses extends StatefulWidget {
 }
 
 class _ExpensesState extends State<Expenses> {
-  final List<Expense> _registeredExpenses = [];
-  //   Expense(
-  //     title: 'Flutter Course',
-  //     amount: 19.69535,
-  //     date: DateTime.now(),
-  //     category: Category.work,
-  //   ),
-  //   Expense(
-  //     title: 'Cinema',
-  //     amount: 15.69,
-  //     date: DateTime.now(),
-  //     category: Category.leisure,
-  //   ),
-  // ];
+  final List<Expense> _registeredExpenses = [
+    Expense(
+      title: 'Flutter Course',
+      amount: 19.69535,
+      date: DateTime.now(),
+      category: Category.work,
+    ),
+    Expense(
+      title: 'Cinema',
+      amount: 15.69,
+      date: DateTime.now(),
+      category: Category.leisure,
+    ),
+  ];
   void addExpenses(Expense expense) {
     setState(() {
       _registeredExpenses.add(expense);
     });
   }
 
-  void removeExpenses(Expense expense) {
+  void _removeExpenses(Expense expense) {
     final expenseIndex = _registeredExpenses.indexOf(expense);
     setState(() {
       _registeredExpenses.remove(expense);
@@ -57,6 +57,7 @@ class _ExpensesState extends State<Expenses> {
 
   void _openAddExpenseOverLay() {
     showModalBottomSheet(
+      useSafeArea: true,
       isScrollControlled: true,
       context: context,
       builder: (ctx) => NewExpense(addExpenses),
@@ -66,30 +67,17 @@ class _ExpensesState extends State<Expenses> {
 
   @override
   Widget build(BuildContext context) {
-    Widget mainContent = Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'No Expense found. Start adding more',
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  fontSize: 18,
-                ),
-          ),
-          Text(
-            'Click on + to add',
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  fontSize: 18,
-                ),
-          ),
-        ],
-      ),
+    final width = MediaQuery.of(context).size.width;
+    // .platformBrightness == Brightness.dark;
+
+    Widget mainContent = const Center(
+      child: Text('No expenses found. Start adding some!'),
     );
 
     if (_registeredExpenses.isNotEmpty) {
       mainContent = ExpenseList(
         expenses: _registeredExpenses,
-        removeExpense: removeExpenses,
+        removeExpense: _removeExpenses,
       );
     }
 
@@ -103,15 +91,27 @@ class _ExpensesState extends State<Expenses> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Chart(expenses: _registeredExpenses),
-          // const Text('chart'),
-          Expanded(
-            child: mainContent,
-          ),
-        ],
-      ),
+      body: width < 500
+          ? Column(
+              children: [
+                Chart(expenses: _registeredExpenses),
+                // const Text('chart'),
+                Expanded(
+                  child: mainContent,
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(
+                  child: Chart(expenses: _registeredExpenses),
+                ),
+                // const Text('chart'),
+                Expanded(
+                  child: mainContent,
+                ),
+              ],
+            ),
     );
   }
 }
